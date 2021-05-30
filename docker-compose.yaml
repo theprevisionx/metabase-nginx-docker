@@ -1,0 +1,28 @@
+version: '3'
+
+services:
+  
+  unsafe_metabase:
+    image: metabase/metabase:v0.39.3
+    container_name: unsafe_metabase
+    ports:
+      - "3000:3000"
+
+  nginx_metabase:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.nginx
+    container_name: nginx_metabase
+    ports: 
+      - "8090:8090"
+    environment:
+      X_FORWARDED_PORT: 8090
+      X_FORWARDED_PROTO_SCHEME: http
+
+  vuejs_metabase:
+    build:
+      context: .
+      dockerfile: ./Dockerfile.vuejs
+    container_name: vuejs_metabase
+    ports:
+      - "8080:8080"

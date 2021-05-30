@@ -1,0 +1,31 @@
+upstream metabase-backend {
+  server unsafe_metabase:3000 fail_timeout=0;
+}
+
+server {
+  listen 8090;
+  server_name localhost;
+
+  location / {
+    try_files $uri @proxy_to_metabase_app;
+  }
+
+  location @proxy_to_metabase_app {
+    proxy_set_header X-Forwarded-Proto http;
+    proxy_set_header X-Forwarded-Port 8090;
+    proxy_set_header X-Forwarded-For $remote_addr;
+    proxy_set_header Host $http_host;
+
+    proxy_hide_header X-Frame-Options;
+    proxy_hide_header Content-Security-Policy;
+    add_header Content-Security-Policy "frame-ancestors localhost:8080";
+    
+    proxy_connect_timeout 600;
+    proxy_send_timeout 600;
+    proxy_read_timeout 600;
+    send_timeout 600;    
+
+    proxy_redirect off;
+    proxy_pass http://metabase-backend;
+  }
+}
